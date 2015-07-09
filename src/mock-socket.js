@@ -4,11 +4,15 @@ import socketMessageEvent  from './helpers/message-event';
 import globalContext       from './helpers/global-context';
 import webSocketProperties from './helpers/websocket-properties';
 
-function MockSocket(url) {
+function MockSocket(url, notUseDelay) {
   this.binaryType = 'blob';
   this.url        = urlTransform(url);
   this.readyState = globalContext.MockSocket.CONNECTING;
   this.service    = globalContext.MockSocket.services[this.url];
+  this.notUseDelay = false;
+  if (notUseDelay == true) {
+    this.notUseDelay = true;
+  }
 
   this._eventHandlers = {};
 
@@ -18,7 +22,7 @@ function MockSocket(url) {
     // Let the service know that we are both ready to change our ready state and that
     // this client is connecting to the mock server.
     this.service.clientIsConnecting(this, this._updateReadyState);
-  }, this);
+  }, this, this.notUseDelay);
 }
 
 MockSocket.CONNECTING = 0;
@@ -118,7 +122,7 @@ MockSocket.prototype = {
   send: function(data) {
     delay(function() {
       this.service.sendMessageToServer(socketMessageEvent('message', data, this.url));
-    }, this);
+    }, this, this.notUseDelay);
   },
 
   /*
@@ -128,7 +132,7 @@ MockSocket.prototype = {
   close: function() {
     delay(function() {
       this.service.closeConnectionFromClient(socketMessageEvent('close', null, this.url), this);
-    }, this);
+    }, this, this.notUseDelay);
   },
 
   /*

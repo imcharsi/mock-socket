@@ -4,9 +4,13 @@ import urlTransform       from './helpers/url-transform';
 import socketMessageEvent from './helpers/message-event';
 import globalContext      from './helpers/global-context';
 
-function MockServer(url) {
+function MockServer(url, notUseDelay) {
   var service = new Service();
   this.url    = urlTransform(url);
+  this.notUseDelay = false;
+  if (notUseDelay == true) {
+    this.notUseDelay = true;
+  }
 
   globalContext.MockSocket.services[this.url] = service;
 
@@ -68,7 +72,7 @@ MockServer.prototype = {
   send: function(data) {
     delay(function() {
       this.service.sendMessageToClients(socketMessageEvent('message', data, this.url));
-    }, this);
+    }, this, this.notUseDelay);
   },
 
   /*
@@ -77,7 +81,7 @@ MockServer.prototype = {
   close: function() {
     delay(function() {
       this.service.closeConnectionFromServer(socketMessageEvent('close', null, this.url));
-    }, this);
+    }, this, this.notUseDelay);
   }
 };
 

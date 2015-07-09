@@ -8,10 +8,14 @@ import globalContext from './global-context';
 * @param {callback: function} the callback which will be invoked after the timeout
 * @parma {context: object} the context in which to invoke the function
 */
-function delay(callback, context) {
-  globalContext.setTimeout(function(context) {
+function delay(callback, context, notUseDelay) {
+  if (notUseDelay != true) {
+    globalContext.setTimeout(function(context) {
+      callback.call(context);
+    }, 4, context);
+  } else {
     callback.call(context);
-  }, 4, context);
+  }
 }
 
 export default delay;
